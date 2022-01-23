@@ -878,7 +878,8 @@ class MainController extends Controller
         ->groupBy('date')
         ->orderBy('total','asc')
         ->get();
-        
+
+     
         $arr_pengeluaran_daily = [];
         $total_pengeluaran = 0;
         foreach($pengeluaran_daily as $p){

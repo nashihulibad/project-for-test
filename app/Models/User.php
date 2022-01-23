@@ -22,7 +22,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'otp',
         'otp_limit',
         'is_confirm',
-        'limit_monthly'
+        'limit_monthly',
+        'nama_toko',
+        'deskripsi_toko',
     ]; 
     protected $hidden = [
         'password',

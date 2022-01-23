@@ -10,13 +10,13 @@ class Produk extends Model
     use HasFactory;
     protected $fillable  = [
         'user_id',
-        'toko_id',
-        'nama', 
+        'nama',  
         'deskripsi',
         'kategori',
         'harga_jual',
         'harga_beli',
         'stok',
-        'terjual'
+        'terjual',
+        'is_delete'
     ];
 }   
