@@ -21,6 +21,8 @@ class AuthController extends Controller
         }
     }
 
+
+
     public function createToko(Request $request)
     {
         $token = $request->input('token');
@@ -285,6 +287,7 @@ class AuthController extends Controller
 
   
     
+
     public function setTransaksiPenjualan(Request $request)
     {
         $token = $request->input('token');
@@ -557,6 +560,7 @@ class AuthController extends Controller
     {
         $token = $request->input('token');
         $id = $request->input('id');
+
         $user = $this->getUserPrivate($token);
         if($user == false){
             return response()->json(
@@ -600,6 +604,7 @@ class AuthController extends Controller
         $transaksi_penjualan_id = $request->input('transaksi_penjualan_id');
         $banyak_angsuran = $request->input('banyak_angsuran');
         $suku_bunga = $request->input('suku_bunga');
+
         $user = $this->getUserPrivate($token);
         if($user == false){
             return response()->json(
@@ -672,45 +677,82 @@ class AuthController extends Controller
         }
 
         $transaksi_penjualan = $transaksi_kredit->transaksi_penjualan;
-
         $total_pinjaman = $transaksi_penjualan->total_harga;
         $total_pinjaman_dengan_bunga = $total_pinjaman + ($transaksi_kredit->suku_bunga/100) * $total_pinjaman;    
         $total_angsuran = ceil($total_pinjaman_dengan_bunga/$transaksi_kredit->banyak_angsuran);
+        $angsuran = array(
+            [
+                'angsuran' => $total_angsuran,
+                'angsuran_terbayar' => $transaksi_kredit->banyak_angsuran_terbayar,
+                'banyak_angsuran' => $transaksi_kredit->banyak_angsuran,
+                'suku_bunga' => $transaksi_kredit->suku_bunga
+            ]
+        );
 
-        $angsuran = [];
-        for($i = 1; $i<=$transaksi_kredit->banyak_angsuran; $i++){
-            if($i <= $transaksi_kredit->banyak_angsuran_terbayar){
-                $angsuran[] = array(
-                    [
-                        'angsuran' => $total_angsuran,
-                        'angsuran_ke' => $i,
-                        'status' => 'Sudah Terbayar'
-                    ]
-                );
-            }
-            else{
-                $angsuran[] = array(
-                    [
-                        'angsuran' => $total_angsuran,
-                        'angsuran_ke' => $i,
-                        'status' => 'Sudah Terbayar'
-                    ]
-                );
-            }
-        }
+        return response()->json(
+            [
+                'status' => '2xx',
+                'message' => 'Not found',
+                'data' => $angsuran
+            ]
+        );
+        
+
     }
 
     public function bayarAngsuranKredit(Request $request)
     {
+        $token = $request->input('token');
+        $transaksi_penjualan_id = $request->input('transaksi_penjualan_id'); 
 
+        $user = $this->getUserPrivate($token);
+        if($user == false){
+            return response()->json(
+                [
+                    'status' => '4xx',
+                    'message' => 'Token salah!',
+                ]
+            );
+        } 
+
+        $transaksi_kredit = TransaksiKredit::where('user_id',$user->id)
+        ->where('transaksi_penjualan_id',$transaksi_penjualan_id)
+        ->first();
+
+        if(empty($transaksi_kredit)){
+            return response()->json(
+                [
+                    'status' => '4xx',
+                    'message' => 'Not found',
+                ]
+            );
+        }
+
+        $transaksi_kredit->banyak_angsuran_terbayar += 1;
+        $transaksi_kredit->update();
+        return response()->json(
+            [
+                'status' => '2xx',
+                'message' => 'Successfully',
+                'data' => $transaksi_kredit
+            ]
+        );
     }
-
 
 
 
     public function statistikPenjualan(Request $request)
     {
+        /*
+            1. hasil penjualan berdasarkan bulan
+                entitas : nama produk
 
+            2. laba hasil penjualan berdasarkan bulan
+
+            3. ketepatan harga_jual
+
+            4. hasil penjualan berdasarkan produk
+        */
     }
 
     public function rekeomendasiProduct(Request $request)
